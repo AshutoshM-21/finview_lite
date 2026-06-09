@@ -149,7 +149,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     decoration: const InputDecoration(
                                       labelText: 'Email address',
                                       prefixIcon:
-                                          Icon(Icons.alternate_email_rounded),
+                                          Icon(Icons.email),
                                     ),
                                     validator: (value) {
                                       if (value == null ||
