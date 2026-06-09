@@ -1,57 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'core/constants/app_colors.dart';
+import 'core/services/preferences_service.dart';
 import 'data/datasource/portfolio_local_datasource.dart';
-import 'data/repository/portfolio_repository.dart';
+import 'data/repository/portfolio_repository_impl.dart';
+import 'presentation/app/app.dart';
+import 'presentation/auth/cubit/auth_cubit.dart';
 import 'presentation/dashboard/cubit/portfolio_cubit.dart';
-import 'presentation/dashboard/screen/dashboard_screen.dart';
+import 'presentation/settings/cubit/theme_cubit.dart';
 
-void main() {
-  final datasource = PortfolioLocalDataSourceImpl();
-  final repository = PortfolioRepositoryImpl(datasource);
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
 
-  runApp(MyApp(repository: repository));
-}
+  final preferencesService = await PreferencesService.init();
+  final dataSource = PortfolioLocalDataSourceImpl();
+  final repository = PortfolioRepositoryImpl(dataSource);
 
-class MyApp extends StatelessWidget {
-  final PortfolioRepository repository;
-
-  const MyApp({
-    super.key,
-    required this.repository,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => PortfolioCubit(repository)..loadPortfolio(),
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'FinView Lite',
-        theme: ThemeData(
-          useMaterial3: true,
-          scaffoldBackgroundColor: AppColors.background,
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: AppColors.primary,
-            primary: AppColors.primary,
-            surface: AppColors.cardBackground,
-          ),
-          cardTheme: CardThemeData(
-            color: AppColors.cardBackground,
-            elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-          ),
-          appBarTheme: const AppBarTheme(
-            backgroundColor: AppColors.background,
-            foregroundColor: AppColors.textPrimary,
-            elevation: 0,
-          ),
+  runApp(
+    MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) => ThemeCubit(preferencesService),
         ),
-        home: const DashboardScreen(),
-      ),
-    );
-  }
+        BlocProvider(
+          create: (_) => AuthCubit(preferencesService)..checkAuthStatus(),
+        ),
+        BlocProvider(
+          create: (_) => PortfolioCubit(repository),
+        ),
+      ],
+      child: const FinViewApp(),
+    ),
+  );
 }
