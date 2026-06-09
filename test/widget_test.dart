@@ -1,30 +1,47 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:finview_lite/main.dart';
+import 'package:finview_lite/data/models/holding_model.dart';
+import 'package:finview_lite/data/models/portfolio_model.dart';
+import 'package:finview_lite/data/repository/portfolio_repository.dart';
+import 'package:finview_lite/presentation/dashboard/cubit/portfolio_cubit.dart';
+import 'package:finview_lite/presentation/dashboard/screen/dashboard_screen.dart';
+
+class _FakePortfolioRepository implements PortfolioRepository {
+  @override
+  Future<PortfolioModel> getPortfolio() async {
+    return const PortfolioModel(
+      user: 'Test User',
+      holdings: [
+        HoldingModel(
+          symbol: 'TCS',
+          name: 'Tata Consultancy',
+          units: 5,
+          avgCost: 3200,
+          currentPrice: 3400,
+        ),
+      ],
+    );
+  }
+}
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('Dashboard shows portfolio summary when loaded',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(
+      BlocProvider(
+        create: (_) => PortfolioCubit(_FakePortfolioRepository())
+          ..loadPortfolio(),
+        child: const MaterialApp(home: DashboardScreen()),
+      ),
+    );
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    await tester.pumpAndSettle();
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(find.textContaining('Hello, Test User'), findsOneWidget);
+    expect(find.text('Portfolio Value'), findsOneWidget);
+    expect(find.text('Holdings'), findsOneWidget);
+    expect(find.text('TCS'), findsOneWidget);
   });
 }
