@@ -1,70 +1,75 @@
 # FinView Lite
 
-**Investment Insights Dashboard** — a Flutter mobile/web app that visualizes portfolio value, asset allocation, and holding-level returns using local mock JSON data.
+A Flutter investment dashboard I built to visualize portfolio performance, asset allocation, and stock-level returns — powered entirely by local JSON, with no backend.
 
-Repository: **https://github.com/AshutoshM-21/finview_lite**
+**Live repo:** https://github.com/AshutoshM-21/finview_lite
 
 ---
 
-## Assignment Requirements Coverage
+## What I Built
 
-| # | Requirement | Status | Implementation |
-|---|-------------|--------|----------------|
-| 1 | Local JSON data source (no backend) | ✅ | `assets/portfolio.json` → `PortfolioLocalDataSource` |
-| 2 | Portfolio summary (total value, gain/loss) | ✅ | `PortfolioSummaryCard` — uses `portfolio_value` & `total_gain` from JSON |
-| 3 | Holdings list (name, units, cost, current value, gain/loss) | ✅ | `HoldingCard` with computed metrics per stock |
-| 4 | Pie/bar chart — asset allocation | ✅ | `AllocationChartCard` using `fl_chart` donut chart + legend |
-| 5 | Return toggle (amount / percentage) | ✅ | `ReturnToggle` segmented pill control |
-| 6 | Sort holdings (value, gain, name) | ✅ | `SortDropdown` — default: Current Value ↓ |
-| 7 | Empty / zero-investment handling | ✅ | `EmptyPortfolioWidget` + safe JSON parsing in models |
-| 8 | Flutter (Dart) only | ✅ | No native business logic outside Flutter |
-| 9 | Free chart library (`fl_chart`) | ✅ | `fl_chart: ^1.2.0` |
-| 10 | Compiles in local debug mode | ✅ | Standard Flutter project, minimal dependencies |
-| 11 | Responsive mobile + web layout | ✅ | `LayoutBuilder` — single column mobile, side-by-side tablet/web |
-| 12 | Error & edge-case handling | ✅ | Loading / error / retry states; null-safe parsing |
-| 13 | Clean architecture | ✅ | Data → Repository → Cubit → UI |
-| 14 | Reusable widget decomposition | ✅ | Separate widgets under `presentation/dashboard/widgets/` |
+FinView Lite is a minimal wealth-management style app. Users sign in, view their portfolio at a glance, explore how assets are distributed, and drill into individual holdings with sortable lists and flexible gain/loss display.
 
-### Bonus Features
+I focused on three things while building this:
 
-| Bonus | Status | Implementation |
-|-------|--------|----------------|
-| Dark mode toggle | ✅ | `ThemeCubit` + `shared_preferences`, toggle on login & dashboard |
-| Mock login with persistence | ✅ | `AuthCubit` + `LoginScreen` — any valid email/password |
-| Manual refresh (simulated prices) | ✅ | Refresh button + pull-to-refresh; ±3% price simulation |
-| Visual polish (animations) | ✅ | Shimmer loading, staggered entries, animated value text |
+- **Clean architecture** — separated data, repository, and presentation layers with `flutter_bloc`
+- **Production-quality UI** — responsive layout, dark mode, loading states, and smooth interactions
+- **Defensive data handling** — the app never crashes on bad or incomplete JSON
+
+---
+
+## Features
+
+### Dashboard
+- Portfolio summary with total value, gain/loss, and invested amount
+- Asset allocation donut chart (`fl_chart`) with per-stock breakdown and an "Other" slice for unlisted assets
+- Holdings list showing symbol, company name, units, invested value, current value, and gain/loss
+- Toggle returns between **amount** and **percentage**
+- Sort holdings by name, current value, or gain (default: highest value first)
+- Portfolio insights row — top gainer, largest holding, and more
+- Tap any holding to open a detail bottom sheet
+
+### App Experience
+- Mock login (any valid email/password) with session persistence
+- Dark / light theme toggle, saved across restarts
+- Pull-to-refresh and header refresh button to simulate live price updates
+- Shimmer loading, staggered list animations, and animated value transitions
+- Empty state when no investments are found
+- Error screen with retry on failed data load
+
+### Responsive Design
+- **Mobile** — single-column scroll layout
+- **Tablet / Web** — portfolio summary and allocation chart side by side (`LayoutBuilder` at 700px)
 
 ---
 
 ## Screenshots
 
-> Add screenshots to `docs/screenshots/` and update links below before final evaluation.
-
 | Screen | Description |
 |--------|-------------|
-| Login | Mock sign-in with theme toggle |
-| Dashboard (Light) | Portfolio summary, allocation chart, holdings |
+| Login | Sign-in screen with theme toggle |
+| Dashboard (Light) | Portfolio summary, chart, and holdings |
 | Dashboard (Dark) | Dark mode variant |
+
+> Screenshots can be added to `docs/screenshots/`
 
 ---
 
-## Demo Recording
+## Demo
 
-> Replace the placeholder with your screen recording link before submission.
-
-**Demo video:** [Add your Loom / YouTube / Drive link here](https://example.com)
+**Screen recording:** [Add your demo link here](https://example.com)
 
 ---
 
 ## Tech Stack
 
-| Tool | Purpose |
-|------|---------|
-| Flutter 3.x (Dart SDK `^3.9.2`) | UI framework |
-| `flutter_bloc` | State management |
-| `fl_chart` | Pie / donut chart |
-| `shared_preferences` | Login & theme persistence |
-| `equatable` | Bloc state equality |
+| Package | Why I used it |
+|---------|---------------|
+| Flutter 3.x | Cross-platform UI (mobile + web) |
+| `flutter_bloc` | Predictable state management for auth, theme, and portfolio |
+| `fl_chart` | Donut chart for asset allocation |
+| `shared_preferences` | Persist login session and theme preference |
+| `equatable` | Value equality for bloc states |
 
 ---
 
@@ -72,30 +77,25 @@ Repository: **https://github.com/AshutoshM-21/finview_lite**
 
 ```
 lib/
-├── core/
-│   ├── constants/          # Colors, spacing
-│   ├── enums/              # Sort option, return display mode
-│   ├── services/           # SharedPreferences wrapper
-│   ├── theme/              # Material 3 light/dark themes
-│   └── utils/              # Currency & percentage formatters
+├── core/                   # Colors, spacing, enums, formatters, theme, preferences
 ├── data/
-│   ├── datasource/         # Local JSON loader + price simulation
+│   ├── datasource/         # Loads portfolio.json, simulates price refresh
 │   ├── models/             # HoldingModel, PortfolioModel
-│   └── repository/         # Repository abstraction + impl
+│   └── repository/         # Repository interface + implementation
 ├── presentation/
-│   ├── app/                # Root app & auth gate
-│   ├── auth/               # Mock login (cubit + screen)
-│   ├── dashboard/
-│   │   ├── cubit/          # PortfolioCubit & states
-│   │   ├── screen/         # DashboardScreen
-│   │   └── widgets/        # Summary, chart, holdings, toggles, shared
+│   ├── app/                # Root widget and auth routing
+│   ├── auth/               # Login screen and AuthCubit
+│   ├── dashboard/          # Dashboard screen, cubit, and widgets
 │   └── settings/           # ThemeCubit
 └── main.dart
+
 assets/
-└── portfolio.json          # Mock API response
+├── portfolio.json          # Mock API data
+└── icon/app_icon.png       # App launcher icon source
+
 test/
-├── models_test.dart        # JSON parsing & edge-case tests
-└── widget_test.dart        # Dashboard widget test
+├── models_test.dart        # JSON parsing edge cases
+└── widget_test.dart        # Dashboard smoke test
 ```
 
 ---
@@ -104,7 +104,7 @@ test/
 
 ### Prerequisites
 
-- **Flutter SDK 3.24+** (stable channel recommended)
+- Flutter SDK **3.24+**
 - Xcode (iOS) / Android Studio (Android) / Chrome (web)
 
 ```bash
@@ -112,7 +112,7 @@ flutter --version
 flutter doctor
 ```
 
-### Clone & Install
+### Setup
 
 ```bash
 git clone https://github.com/AshutoshM-21/finview_lite.git
@@ -123,17 +123,11 @@ flutter pub get
 ### Run
 
 ```bash
-# Mobile (pick connected device)
-flutter run
-
-# Web
-flutter run -d chrome
-
-# List devices
-flutter devices
+flutter run              # connected device / emulator
+flutter run -d chrome    # web
 ```
 
-### Test & Analyze
+### Test
 
 ```bash
 flutter test
@@ -142,24 +136,23 @@ flutter analyze
 
 ---
 
-## Usage Guide
+## How to Use the App
 
-1. **Sign in** with any email and password (demo: `aarav@finview.app` / `demo123`).
-2. View **portfolio summary** — current value, gain/loss, invested amount.
-3. Inspect **asset allocation** donut chart (listed holdings + "Other" for unlisted assets).
-4. Review **portfolio insights** — top gainer, largest holding, etc.
-5. Toggle **Amount / Percentage** on holding gain badges.
-6. **Sort** holdings by name, current value, or gain.
-7. Tap a holding card to open the **detail bottom sheet**.
-8. **Refresh** (icon or pull-down) to simulate live price updates.
-9. Toggle **dark mode** from the dashboard header.
-10. **Sign out** to return to login (session cleared).
+1. Sign in with any email and password — e.g. `aarav@finview.app` / `demo123`
+2. Review the portfolio summary card at the top
+3. Check the allocation chart and insights section
+4. Switch gain display between amount and percentage
+5. Sort holdings using the dropdown
+6. Tap a stock card for full details
+7. Pull down or tap refresh to simulate updated prices
+8. Toggle dark mode from the header
+9. Sign out when done
 
 ---
 
 ## Mock Data
 
-`assets/portfolio.json`:
+I used a local JSON file to simulate an API response:
 
 ```json
 {
@@ -185,87 +178,47 @@ flutter analyze
 }
 ```
 
-### How values are derived
+### How I handle the numbers
 
-| Field | Source |
-|-------|--------|
-| Portfolio value (₹1,50,000) | `portfolio_value` from JSON |
-| Total gain (₹12,000) | `total_gain` from JSON |
-| Invested (₹1,38,000) | `portfolio_value − total_gain` |
-| Per-holding metrics | Computed: `units × avg_cost` / `units × current_price` |
-| Listed holdings total | TCS + INFY = **₹32,000** |
-| "Other" in chart | ₹1,18,000 (portfolio not fully listed in holdings array) |
+| What you see | How it's calculated |
+|---|---|
+| Portfolio value — ₹1,50,000 | Read from `portfolio_value` in JSON |
+| Total gain — ₹12,000 | Read from `total_gain` in JSON |
+| Invested — ₹1,38,000 | `portfolio_value − total_gain` |
+| Per-stock values | Computed from `units`, `avg_cost`, `current_price` |
+| Listed holdings — ₹32,000 | Sum of TCS + INFY current values |
+| "Other" in chart — ₹1,18,000 | Remaining portfolio not shown in the holdings array |
 
-### Refresh behaviour
-
-Refresh simulates market movement (assignment bonus):
-
-- Each holding `current_price` shifts by **±3%** randomly.
-- Summary totals scale proportionally with listed holdings.
-
----
-
-## Error & Edge-Case Handling
-
-| Scenario | Behaviour |
-|----------|-----------|
-| Empty JSON file | Returns empty portfolio, shows empty state |
-| Missing fields | Safe defaults (`0`, empty string, `"Investor"`) |
-| Invalid numeric values | Parsed as `0` via `double.tryParse` |
-| Zero investment | Gain percentage returns `0` (no division error) |
-| Malformed JSON | Error screen with **Retry** button |
-| Invalid holding entries | Skipped silently during parse |
-| No holdings | `EmptyPortfolioWidget` with illustration |
+On refresh, I simulate market movement by shifting each stock price ±3% and scaling the summary totals proportionally.
 
 ---
 
 ## Architecture
 
 ```
-┌─────────────────────────────────────────┐
-│  Presentation (Screens, Widgets, Cubit) │
-├─────────────────────────────────────────┤
-│  Repository (PortfolioRepository)       │
-├─────────────────────────────────────────┤
-│  Data Source (PortfolioLocalDataSource) │
-├─────────────────────────────────────────┤
-│  assets/portfolio.json                  │
-└─────────────────────────────────────────┘
+Presentation  →  Screens, Widgets, Cubits (auth, theme, portfolio)
+Repository    →  PortfolioRepository
+Data Source   →  PortfolioLocalDataSource → assets/portfolio.json
 ```
 
-**State management:** `flutter_bloc` with separate cubits for auth, theme, and portfolio.
+I kept business logic out of widgets. All portfolio data flows through `PortfolioCubit`, auth through `AuthCubit`, and theme through `ThemeCubit`.
 
 ---
 
-## Evaluation Rubric Alignment
+## Error Handling
 
-| Criteria | Points | Coverage |
-|----------|--------|----------|
-| UI/UX clarity & visual hierarchy | 25 | Groww-inspired cards, gradient hero, clear sections |
-| Code organization & widget decomposition | 20 | Clean architecture, 15+ reusable widgets |
-| Data handling & parsing | 20 | JSON totals + computed holdings, unit tests |
-| Responsiveness (mobile/web) | 10 | `LayoutBuilder` breakpoint at 700px |
-| Error & edge-case handling | 10 | Safe parsing, loading/error/empty states |
-| Code readability & comments | 10 | Doc comments on models, cubits, widgets |
-| Bonus visual polish | 5 | Shimmer, animations, dark mode, detail sheet |
+I made sure the app handles real-world data issues gracefully:
 
----
-
-## Submission Checklist
-
-- [x] Flutter project source
-- [x] `assets/portfolio.json` with mock data
-- [x] README with setup steps, dependencies, run instructions
-- [x] Public GitHub repository
-- [ ] Screenshots in `docs/screenshots/` *(add before evaluation)*
-- [ ] Demo screen recording link *(add before evaluation)*
+- Empty or malformed JSON → error screen with retry
+- Missing fields → safe defaults, no crash
+- Invalid numbers → treated as `0`
+- Zero investment → gain % returns `0`
+- Empty holdings list → dedicated empty state UI
 
 ---
 
 ## Author
 
-Built as a **Frontend Assignment — Investment Insights Dashboard (Flutter)**.
+**Ashutosh M** — [GitHub](https://github.com/AshutoshM-21)
 
-## License
-
-Created for academic / assignment submission purposes.
+Built as part of a Flutter frontend assignment: *Investment Insights Dashboard*.
