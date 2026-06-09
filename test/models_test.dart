@@ -41,9 +41,11 @@ void main() {
   });
 
   group('PortfolioModel', () {
-    test('parses holdings list and computes totals', () {
+    test('parses JSON portfolio totals when provided', () {
       final portfolio = PortfolioModel.fromJson({
         'user': 'Aarav Patel',
+        'portfolio_value': 150000,
+        'total_gain': 12000,
         'holdings': [
           {
             'symbol': 'TCS',
@@ -64,8 +66,28 @@ void main() {
 
       expect(portfolio.user, 'Aarav Patel');
       expect(portfolio.holdings.length, 2);
-      expect(portfolio.portfolioValue, 32000);
-      expect(portfolio.totalGain, 2000);
+      expect(portfolio.holdingsValue, 32000);
+      expect(portfolio.portfolioValue, 150000);
+      expect(portfolio.totalGain, 12000);
+      expect(portfolio.investedValue, 138000);
+      expect(portfolio.unlistedValue, 118000);
+    });
+
+    test('falls back to computed totals when JSON totals are missing', () {
+      final portfolio = PortfolioModel.fromJson({
+        'user': 'Aarav Patel',
+        'holdings': [
+          {
+            'symbol': 'TCS',
+            'units': 5,
+            'avg_cost': 3200,
+            'current_price': 3400,
+          },
+        ],
+      });
+
+      expect(portfolio.portfolioValue, 17000);
+      expect(portfolio.totalGain, 1000);
     });
 
     test('handles empty holdings list', () {
@@ -77,6 +99,40 @@ void main() {
       expect(portfolio.user, 'Investor');
       expect(portfolio.portfolioValue, 0);
       expect(portfolio.gainPercentage, 0);
+    });
+
+    test('identifies top gainer, loser, and largest holding', () {
+      final portfolio = PortfolioModel.fromJson({
+        'portfolio_value': 50000,
+        'holdings': [
+          {
+            'symbol': 'TCS',
+            'units': 5,
+            'avg_cost': 3200,
+            'current_price': 3400,
+          },
+          {
+            'symbol': 'INFY',
+            'units': 10,
+            'avg_cost': 1400,
+            'current_price': 1500,
+          },
+          {
+            'symbol': 'RELI',
+            'units': 2,
+            'avg_cost': 2500,
+            'current_price': 2000,
+          },
+        ],
+      });
+
+      expect(portfolio.topGainer?.symbol, 'TCS');
+      expect(portfolio.topLoser?.symbol, 'RELI');
+      expect(portfolio.largestHolding?.symbol, 'INFY');
+      expect(
+        portfolio.allocationPercent(portfolio.largestHolding!),
+        closeTo(30, 0.1),
+      );
     });
 
     test('ignores invalid holding entries', () {

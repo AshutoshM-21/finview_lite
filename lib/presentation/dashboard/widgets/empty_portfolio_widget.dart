@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/app_spacing.dart';
+import 'shared/app_card.dart';
 
-/// Placeholder shown when the portfolio has no holdings.
+/// Illustrated empty state when no holdings are present.
 class EmptyPortfolioWidget extends StatelessWidget {
   const EmptyPortfolioWidget({super.key});
 
@@ -10,38 +12,37 @@ class EmptyPortfolioWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 48),
+    return AppCard(
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            width: 96,
-            height: 96,
+            width: 80,
+            height: 80,
             decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.1),
+              gradient: LinearGradient(
+                colors: [
+                  AppColors.primary.withValues(alpha: 0.15),
+                  AppColors.success.withValues(alpha: 0.1),
+                ],
+              ),
               shape: BoxShape.circle,
             ),
             child: const Icon(
-              Icons.pie_chart_outline_rounded,
-              size: 48,
+              Icons.savings_outlined,
+              size: 40,
               color: AppColors.primary,
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: AppSpacing.xxl),
           Text(
             'No Investments Found',
-            style: theme.textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
+            style: theme.textTheme.titleLarge,
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: AppSpacing.sm),
           Text(
             'Add investments to start tracking your portfolio.',
             textAlign: TextAlign.center,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
+            style: theme.textTheme.bodyMedium,
           ),
         ],
       ),

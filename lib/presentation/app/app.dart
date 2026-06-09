@@ -6,6 +6,7 @@ import '../auth/cubit/auth_cubit.dart';
 import '../auth/cubit/auth_state.dart';
 import '../auth/screen/login_screen.dart';
 import '../dashboard/cubit/portfolio_cubit.dart';
+import '../dashboard/cubit/portfolio_state.dart';
 import '../dashboard/screen/dashboard_screen.dart';
 import '../settings/cubit/theme_cubit.dart';
 
@@ -38,7 +39,9 @@ class _AuthGate extends StatelessWidget {
     return BlocListener<AuthCubit, AuthState>(
       listener: (context, state) {
         if (state is AuthAuthenticated) {
-          context.read<PortfolioCubit>().loadPortfolio();
+          _ensurePortfolioLoaded(context);
+        } else if (state is AuthUnauthenticated) {
+          context.read<PortfolioCubit>().reset();
         }
       },
       child: BlocBuilder<AuthCubit, AuthState>(
@@ -50,12 +53,46 @@ class _AuthGate extends StatelessWidget {
           }
 
           if (state is AuthAuthenticated) {
-            return const DashboardScreen();
+            // Handles cold start when auth resolves before the listener attaches.
+            return const _AuthenticatedHome();
           }
 
           return const LoginScreen();
         },
       ),
     );
+  }
+
+  static void _ensurePortfolioLoaded(BuildContext context) {
+    final portfolioCubit = context.read<PortfolioCubit>();
+    final portfolioState = portfolioCubit.state;
+
+    if (portfolioState is PortfolioInitial || portfolioState is PortfolioError) {
+      portfolioCubit.loadPortfolio();
+    }
+  }
+}
+
+/// Loads portfolio on mount so restart with a saved session never shows a blank screen.
+class _AuthenticatedHome extends StatefulWidget {
+  const _AuthenticatedHome();
+
+  @override
+  State<_AuthenticatedHome> createState() => _AuthenticatedHomeState();
+}
+
+class _AuthenticatedHomeState extends State<_AuthenticatedHome> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _AuthGate._ensurePortfolioLoaded(context);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const DashboardScreen();
   }
 }

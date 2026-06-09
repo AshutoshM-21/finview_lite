@@ -49,9 +49,19 @@ class PortfolioLocalDataSourceImpl implements PortfolioLocalDataSource {
       );
     }).toList();
 
-    _cachedPortfolio = PortfolioModel(
-      user: current.user,
+    final previousHoldingsValue = current.holdingsValue;
+    final updatedHoldingsValue = updatedHoldings.fold<double>(
+      0,
+      (sum, holding) => sum + holding.currentValue,
+    );
+    final changeRatio = previousHoldingsValue > 0
+        ? updatedHoldingsValue / previousHoldingsValue
+        : 1.0;
+
+    _cachedPortfolio = current.copyWith(
       holdings: updatedHoldings,
+      jsonPortfolioValue: current.portfolioValue * changeRatio,
+      jsonTotalGain: current.totalGain * changeRatio,
     );
 
     // Brief delay to mimic network latency.

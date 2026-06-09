@@ -57,9 +57,9 @@ void main() {
     await tester.pumpWidget(await _buildDashboardApp());
     await tester.pumpAndSettle();
 
-    expect(find.textContaining('Hello, Test User'), findsOneWidget);
-    expect(find.text('Portfolio Value'), findsOneWidget);
-    expect(find.text('Holdings'), findsOneWidget);
+    expect(find.text('Test User'), findsOneWidget);
+    expect(find.text('CURRENT VALUE'), findsOneWidget);
+    expect(find.text('Your Holdings'), findsOneWidget);
     expect(find.text('TCS'), findsOneWidget);
     expect(find.text('Asset Allocation'), findsOneWidget);
   });

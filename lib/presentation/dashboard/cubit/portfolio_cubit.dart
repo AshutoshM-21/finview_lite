@@ -9,13 +9,16 @@ class PortfolioCubit extends Cubit<PortfolioState> {
 
   PortfolioCubit(this.repository) : super(PortfolioInitial());
 
+  /// Clears portfolio state when the user signs out.
+  void reset() => emit(PortfolioInitial());
+
   Future<void> loadPortfolio() async {
     try {
       emit(PortfolioLoading());
 
       final portfolio = await repository.getPortfolio();
 
-      emit(PortfolioLoaded(portfolio));
+      emit(PortfolioLoaded(portfolio, lastUpdated: DateTime.now()));
     } catch (e) {
       emit(PortfolioError(e.toString()));
     }
@@ -30,7 +33,7 @@ class PortfolioCubit extends Cubit<PortfolioState> {
 
     try {
       final portfolio = await repository.refreshPortfolio();
-      emit(PortfolioLoaded(portfolio));
+      emit(PortfolioLoaded(portfolio, lastUpdated: DateTime.now()));
     } catch (e) {
       if (currentState is PortfolioLoaded) {
         emit(currentState.copyWith(isRefreshing: false));

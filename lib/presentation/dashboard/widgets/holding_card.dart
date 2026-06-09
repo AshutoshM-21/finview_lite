@@ -1,177 +1,154 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/app_spacing.dart';
 import '../../../core/enums/return_display_mode.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../data/models/holding_model.dart';
+import 'holding_detail_sheet.dart';
+import 'shared/app_card.dart';
+import 'shared/gain_badge.dart';
+import 'shared/stat_tile.dart';
+import 'shared/symbol_avatar.dart';
 
-/// Reusable card displaying a single holding with wealth-management styling.
+/// Compact Groww-style holding row with symbol avatar and financial metrics.
 class HoldingCard extends StatelessWidget {
   final HoldingModel holding;
   final ReturnDisplayMode returnDisplayMode;
+  final double allocationPercent;
 
   const HoldingCard({
     super.key,
     required this.holding,
     required this.returnDisplayMode,
+    this.allocationPercent = 0,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isProfit = holding.gainLoss >= 0;
-    final gainColor = isProfit ? AppColors.success : AppColors.loss;
     final gainLabel = returnDisplayMode == ReturnDisplayMode.amount
         ? Formatters.currency(holding.gainLoss, showSign: true)
         : Formatters.percentage(holding.gainPercentage);
 
-    return Card(
-      elevation: 2,
-      margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final isWide = constraints.maxWidth >= 480;
-
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.md),
+      child: AppCard(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+            onTap: () => HoldingDetailSheet.show(
+              context,
+              holding: holding,
+              allocationPercent: allocationPercent,
+            ),
+            child: Column(
               children: [
                 Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SymbolAvatar(symbol: holding.symbol),
+                const SizedBox(width: AppSpacing.md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        holding.symbol,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        holding.name,
+                        style: theme.textTheme.bodyMedium,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            holding.symbol,
-                            style: theme.textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            holding.name,
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: theme.colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                        ],
+                    Text(
+                      Formatters.currency(holding.currentValue),
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
+                    const SizedBox(height: 4),
+                    GainBadge(label: gainLabel, isProfit: isProfit),
+                  ],
+                ),
+                ],
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                Divider(
+                  height: 1,
+                  color: theme.dividerColor,
+                ),
+                const SizedBox(height: AppSpacing.md),
+                Row(
+                  children: [
+                    Expanded(
+                      child: StatTile(
+                        label: 'Qty',
+                        value: holding.units.toStringAsFixed(0),
                       ),
-                      decoration: BoxDecoration(
-                        color: gainColor.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(20),
+                    ),
+                    Expanded(
+                      child: StatTile(
+                        label: 'Avg Price',
+                        value: Formatters.currency(holding.avgCost),
                       ),
-                      child: Text(
-                        gainLabel,
-                        style: theme.textTheme.labelLarge?.copyWith(
-                          color: gainColor,
-                          fontWeight: FontWeight.w600,
-                        ),
+                    ),
+                    Expanded(
+                      child: StatTile(
+                        label: 'Invested',
+                        value: Formatters.currency(holding.investedValue),
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 20),
-                if (isWide)
-                  _buildWideMetrics(theme)
-                else
-                  _buildNarrowMetrics(theme),
+                if (allocationPercent > 0) ...[
+                  const SizedBox(height: AppSpacing.md),
+                  Row(
+                    children: [
+                      Text(
+                        'Portfolio weight',
+                        style: theme.textTheme.labelMedium,
+                      ),
+                      const Spacer(),
+                      Text(
+                        '${allocationPercent.toStringAsFixed(1)}%',
+                        style: theme.textTheme.labelMedium?.copyWith(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: LinearProgressIndicator(
+                      value: allocationPercent / 100,
+                      minHeight: 4,
+                      backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+                      color: AppColors.primary,
+                    ),
+                  ),
+                ],
               ],
-            );
-          },
+            ),
+          ),
         ),
       ),
-    );
-  }
-
-  Widget _buildWideMetrics(ThemeData theme) {
-    return Row(
-      children: [
-        Expanded(child: _MetricTile(label: 'Units', value: holding.units.toStringAsFixed(0))),
-        Expanded(
-          child: _MetricTile(
-            label: 'Invested Value',
-            value: Formatters.currency(holding.investedValue),
-          ),
-        ),
-        Expanded(
-          child: _MetricTile(
-            label: 'Current Value',
-            value: Formatters.currency(holding.currentValue),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildNarrowMetrics(ThemeData theme) {
-    return Column(
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: _MetricTile(
-                label: 'Units',
-                value: holding.units.toStringAsFixed(0),
-              ),
-            ),
-            Expanded(
-              child: _MetricTile(
-                label: 'Invested Value',
-                value: Formatters.currency(holding.investedValue),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        _MetricTile(
-          label: 'Current Value',
-          value: Formatters.currency(holding.currentValue),
-        ),
-      ],
-    );
-  }
-}
-
-class _MetricTile extends StatelessWidget {
-  final String label;
-  final String value;
-
-  const _MetricTile({
-    required this.label,
-    required this.value,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: theme.textTheme.labelMedium?.copyWith(
-            color: theme.colorScheme.onSurfaceVariant,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: theme.textTheme.titleSmall?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ],
     );
   }
 }
