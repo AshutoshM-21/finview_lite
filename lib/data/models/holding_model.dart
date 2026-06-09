@@ -1,3 +1,4 @@
+/// Represents a single investment holding with computed financial metrics.
 class HoldingModel {
   final String symbol;
   final String name;
@@ -15,11 +16,11 @@ class HoldingModel {
 
   factory HoldingModel.fromJson(Map<String, dynamic> json) {
     return HoldingModel(
-      symbol: json['symbol'] ?? '',
-      name: json['name'] ?? '',
-      units: (json['units'] ?? 0).toDouble(),
-      avgCost: (json['avg_cost'] ?? 0).toDouble(),
-      currentPrice: (json['current_price'] ?? 0).toDouble(),
+      symbol: _parseString(json['symbol']),
+      name: _parseString(json['name']),
+      units: _parseDouble(json['units']),
+      avgCost: _parseDouble(json['avg_cost']),
+      currentPrice: _parseDouble(json['current_price']),
     );
   }
 
@@ -32,5 +33,17 @@ class HoldingModel {
   double get gainPercentage {
     if (investedValue == 0) return 0;
     return (gainLoss / investedValue) * 100;
+  }
+
+  static String _parseString(dynamic value) {
+    if (value == null) return '';
+    return value.toString();
+  }
+
+  static double _parseDouble(dynamic value) {
+    if (value == null) return 0;
+    if (value is num) return value.toDouble();
+    if (value is String) return double.tryParse(value) ?? 0;
+    return 0;
   }
 }
