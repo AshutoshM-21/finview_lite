@@ -49,14 +49,13 @@ class HoldingCard extends StatelessWidget {
                             holding.symbol,
                             style: theme.textTheme.titleLarge?.copyWith(
                               fontWeight: FontWeight.bold,
-                              color: AppColors.textPrimary,
                             ),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             holding.name,
                             style: theme.textTheme.bodyMedium?.copyWith(
-                              color: AppColors.textSecondary,
+                              color: theme.colorScheme.onSurfaceVariant,
                             ),
                           ),
                         ],
@@ -162,7 +161,7 @@ class _MetricTile extends StatelessWidget {
         Text(
           label,
           style: theme.textTheme.labelMedium?.copyWith(
-            color: AppColors.textSecondary,
+            color: theme.colorScheme.onSurfaceVariant,
           ),
         ),
         const SizedBox(height: 4),
@@ -170,7 +169,6 @@ class _MetricTile extends StatelessWidget {
           value,
           style: theme.textTheme.titleSmall?.copyWith(
             fontWeight: FontWeight.w600,
-            color: AppColors.textPrimary,
           ),
         ),
       ],

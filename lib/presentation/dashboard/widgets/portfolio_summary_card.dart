@@ -30,7 +30,7 @@ class PortfolioSummaryCard extends StatelessWidget {
             Text(
               'Hello, ${portfolio.user} 👋',
               style: theme.textTheme.titleMedium?.copyWith(
-                color: AppColors.textSecondary,
+                color: theme.colorScheme.onSurfaceVariant,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -38,7 +38,7 @@ class PortfolioSummaryCard extends StatelessWidget {
             Text(
               'Portfolio Value',
               style: theme.textTheme.labelLarge?.copyWith(
-                color: AppColors.textSecondary,
+                color: theme.colorScheme.onSurfaceVariant,
               ),
             ),
             const SizedBox(height: 4),
@@ -46,7 +46,6 @@ class PortfolioSummaryCard extends StatelessWidget {
               Formatters.currency(portfolio.portfolioValue),
               style: theme.textTheme.headlineMedium?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
               ),
             ),
             const SizedBox(height: 8),

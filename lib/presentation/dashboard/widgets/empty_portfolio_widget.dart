@@ -33,7 +33,6 @@ class EmptyPortfolioWidget extends StatelessWidget {
             'No Investments Found',
             style: theme.textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
             ),
           ),
           const SizedBox(height: 8),
@@ -41,7 +40,7 @@ class EmptyPortfolioWidget extends StatelessWidget {
             'Add investments to start tracking your portfolio.',
             textAlign: TextAlign.center,
             style: theme.textTheme.bodyMedium?.copyWith(
-              color: AppColors.textSecondary,
+              color: theme.colorScheme.onSurfaceVariant,
             ),
           ),
         ],

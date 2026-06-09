@@ -33,7 +33,6 @@ class AllocationChartCard extends StatelessWidget {
               'Asset Allocation',
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
               ),
             ),
             const SizedBox(height: 24),
@@ -127,7 +126,6 @@ class _LegendItem extends StatelessWidget {
         Text(
           label,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppColors.textPrimary,
                 fontWeight: FontWeight.w500,
               ),
         ),
