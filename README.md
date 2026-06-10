@@ -51,7 +51,7 @@ I focused on three things while building this:
 | Dashboard (Light) | Portfolio summary, chart, and holdings |
 | Dashboard (Dark) | Dark mode variant |
 
-> Screenshots can be added to `docs/screenshots/`
+> Screenshots added to `docs/screenshots/`
 
 ---
 
