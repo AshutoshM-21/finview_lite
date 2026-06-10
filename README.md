@@ -57,7 +57,7 @@ I focused on three things while building this:
 
 ## Demo
 
-**Screen recording:** [Add your demo link here](https://example.com)
+**Screen recording:** added to 'docs/screenRecordings/'
 
 ---
 

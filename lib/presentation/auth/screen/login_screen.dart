@@ -8,7 +8,7 @@ import '../../settings/cubit/theme_cubit.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
 
-/// Premium login screen with gradient backdrop and elevated form card.
+///  login screen with gradient backdrop and elevated form card.
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
